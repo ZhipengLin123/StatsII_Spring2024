@@ -1,0 +1,277 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{graphicx,textcomp}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage[reqno]{amsmath}
+\usepackage{amsthm}
+\usepackage{fancyvrb}
+\usepackage{amssymb,enumerate}
+\usepackage[all]{xy}
+\usepackage{endnotes}
+\usepackage{lscape}
+\newtheorem{com}{Comment}
+\usepackage{float}
+\usepackage{hyperref}
+\newtheorem{lem} {Lemma}
+\newtheorem{prop}{Proposition}
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}{Definition}
+\newtheorem{cor}{Corollary}
+\newtheorem{obs}{Observation}
+\usepackage[compact]{titlesec}
+\usepackage{dcolumn}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{multirow}
+\usepackage{xcolor}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+\definecolor{light-gray}{gray}{0.65}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{booktabs}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+\newcommand{\Sref}[1]{Section~\ref{#1}}
+\newtheorem{hyp}{Hypothesis}
+
+\title{Problem Set 3}
+\date{Due: March 24, 2024}
+\author{Applied Stats II}
+
+
+\begin{document}
+	\maketitle
+	\section*{Instructions}
+	\begin{itemize}
+	\item Please show your work! You may lose points by simply writing in the answer. If the problem requires you to execute commands in \texttt{R}, please include the code you used to get your answers. Please also include the \texttt{.R} file that contains your code. If you are not sure if work needs to be shown for a particular problem, please ask.
+\item Your homework should be submitted electronically on GitHub in \texttt{.pdf} form.
+\item This problem set is due before 23:59 on Sunday March 24, 2024. No late assignments will be accepted.
+	\end{itemize}
+
+	\vspace{.25cm}
+\section*{Question 1}
+\vspace{.25cm}
+\noindent We are interested in how governments' management of public resources impacts economic prosperity. Our data come from \href{https://www.researchgate.net/profile/Adam_Przeworski/publication/240357392_Classifying_Political_Regimes/links/0deec532194849aefa000000/Classifying-Political-Regimes.pdf}{Alvarez, Cheibub, Limongi, and Przeworski (1996)} and is labelled \texttt{gdpChange.csv} on GitHub. The dataset covers 135 countries observed between 1950 or the year of independence or the first year forwhich data on economic growth are available ("entry year"), and 1990 or the last year for which data on economic growth are available ("exit year"). The unit of analysis is a particular country during a particular year, for a total $>$ 3,500 observations. 
+
+\begin{itemize}
+	\item
+	Response variable: 
+	\begin{itemize}
+		\item \texttt{GDPWdiff}: Difference in GDP between year $t$ and $t-1$. Possible categories include: "positive", "negative", or "no change"
+	\end{itemize}
+	\item
+	Explanatory variables: 
+	\begin{itemize}
+		\item
+		\texttt{REG}: 1=Democracy; 0=Non-Democracy
+		\item
+		\texttt{OIL}: 1=if the average ratio of fuel exports to total exports in 1984-86 exceeded 50\%; 0= otherwise
+	\end{itemize}
+	
+\end{itemize}
+\newpage
+\noindent Please answer the following questions:
+
+\begin{enumerate}
+	\item Construct and interpret an unordered multinomial logit with \texttt{GDPWdiff} as the output and "no change" as the reference category, including the estimated cutoff points and coefficients.
+	
+	\lstinputlisting[language=R, firstline=55,lastline=72]{PS3.R} 
+	\begin{table}[htbp]
+		\centering
+		\caption{Multinomial Regression Results}
+		\begin{tabular}{lccc}
+			\toprule
+			& \textbf{Negative} & \textbf{Positive} \\
+			\midrule
+			(Intercept) & 3.805 (0.271) & 4.534 (0.269) \\
+			OIL1  & 4.784 (6.885) & 4.576 (6.885) \\
+			REG1  & 1.379 (0.769) & 1.769 (0.767) \\
+			\midrule
+			Residual Deviance & \multicolumn{2}{c}{4678.77} \\
+			AIC   & \multicolumn{2}{c}{4690.77} \\
+			\bottomrule
+		\end{tabular}%
+		\label{tab:multinom_results}%
+	\end{table}%
+	\begin{enumerate}
+		\item \textbf{The unordered multinomial logit with GDPWdiff as the output and ”no change” as the reference category is as follows:}
+		\begin{align*}
+			\ln\left(\frac{p(\text{negative})}{p(\text{no change})}\right) &= 3.805370 + \text{OIL1} \times 4.783968 + \text{REG1} \times 1.379282
+		\end{align*}
+		\textbf{Coefficient for OIL1:}
+		Holding REG1 constant, for every one unit increase in OIL1, the odds of Y= "negative" vs. Y= "no change" increase by $\exp(4.783968)$
+		
+		\textbf{Coefficient for REG1:}
+		Holding OIL1 constant, for every one unit increase in REG1, the odds of Y= "negative" vs. Y= "no change" increase by $\exp(1.379282)$
+		
+		\textbf{Intercept:}
+		When OIL1 and REG1 both equal to 0, the odds of Y= "negative" vs. Y= "no change" equals to $\exp(3.805370)$
+		
+		\item \textbf{The unordered multinomial logit with GDPWdiff as the output and ”no change” as the reference category is as follows:}
+		\begin{align*}
+			\ln\left(\frac{p(\text{negative})}{p(\text{no change})}\right) &= 4.533759 + \text{OIL1} \times 4.576321 + \text{REG1} \times 1.769007
+		\end{align*}
+		\textbf{Coefficient for OIL1:}
+		Holding REG1 constant, for every one unit increase in OIL1, the odds of Y= "positive" vs. Y= "no change" increase by $\exp(4.576321)$
+		
+		\textbf{Coefficient for REG1:}
+		Holding OIL1 constant, for every one unit increase in REG1, the odds of Y= "positive" vs. Y= "no change" increase by $\exp(1.769007)$
+		
+		\textbf{Intercept:}
+		When OIL1 and REG1 both equal to 0, the odds of Y= "positive" compared to Y= "no change" equals to $\exp(4.533759)$
+	\end{enumerate}
+	\vspace{3 cm}
+	\item Construct and interpret an ordered multinomial logit with \texttt{GDPWdiff} as the outcome variable, including the estimated cutoff points and coefficients.
+	\lstinputlisting[language=R, firstline=131,lastline=134]{PS3.R} 
+	\begin{table}[htbp]
+		\centering
+		\caption{Ordered Logistic Regression Results}
+		\begin{tabular}{lccc}
+			\toprule
+			& \textbf{Value} & \textbf{Std. Error} & \textbf{t value} \\
+			\midrule
+			OIL1  & 0.1987 & 0.11572 & 1.717 \\
+			REG1  & -0.3985 & 0.07518 & -5.300 \\
+			\midrule
+			\multicolumn{4}{l}{\textbf{Intercepts:}} \\
+			\midrule
+			positive|no change  & 0.7105 & 0.0475 & 14.9554 \\
+			no change|negative  & 0.7312 & 0.0476 & 15.3597 \\
+			\midrule
+			Residual Deviance & \multicolumn{3}{c}{4687.689} \\
+			AIC   & \multicolumn{3}{c}{4695.689} \\
+			\bottomrule
+		\end{tabular}
+		\label{tab:ordered_logistic_results}
+	\end{table}
+	\vspace{2cm}
+	\begin{enumerate}
+		\item \textbf{The ordered logistic regression model is represented as follows:}
+		\begin{align*}
+			\ln\left(\frac{p(\text{GDPWdiff\_category\_ordered}+1)}{p(\text{GDPWdiff\_category\_ordered})}\right) &= 0.1987 \times \text{OIL1} + (-0.3985 \times \text{REG1})
+		\end{align*}
+		
+		\textbf{Coefficient for OIL1:}
+		Holding REG1 constant, for every one unit increase in OIL1, the odds of GDP becoming from positive change to no change or from no change to positive change increased by $\exp(0.1987)$ times.
+		
+		\textbf{Coefficient for REG1:}
+		Holding OIL1 constant, for every one unit increase in REG1, the odds of GDP becoming from positive change to no change or from no change to positive change decreased by $\exp(0.3985)$ times.
+		
+		\item \textbf{The estimated cutoffs for odds between Y= positive and Y= no change is 0.7105; The estimated cutoffs for odds between Y= no change and Y= negative is 0.7312.}
+	\end{enumerate}
+\end{enumerate}
+
+\section*{Question 2} 
+\vspace{.25cm}
+
+\noindent Consider the data set \texttt{MexicoMuniData.csv}, which includes municipal-level information from Mexico. The outcome of interest is the number of times the winning PAN presidential candidate in 2006 (\texttt{PAN.visits.06}) visited a district leading up to the 2009 federal elections, which is a count. Our main predictor of interest is whether the district was highly contested, or whether it was not (the PAN or their opponents have electoral security) in the previous federal elections during 2000 (\texttt{competitive.district}), which is binary (1=close/swing district, 0="safe seat"). We also include \texttt{marginality.06} (a measure of poverty) and \texttt{PAN.governor.06} (a dummy for whether the state has a PAN-affiliated governor) as additional control variables. 
+
+\begin{enumerate}
+	\item [(a)]
+	Run a Poisson regression because the outcome is a count variable. Is there evidence that PAN presidential candidates visit swing districts more? Provide a test statistic and p-value.
+	data wrangling
+	
+	\lstinputlisting[language=R, firstline=185,lastline=204]{PS3.R} 
+	\begin{table}[htbp]
+		\centering
+		\caption{Poisson Regression Results}
+		\begin{tabular}{lcccc}
+			\toprule
+			& \textbf{Estimate} & \textbf{Std. Error} & \textbf{z value} & \textbf{Pr($>|z|$)} \\
+			\midrule
+			(Intercept) & -3.81023 & 0.22209 & -17.156 & $<2 \times 10^{-16}$ *** \\
+			competitive.district1 & -0.08135 & 0.17069 & -0.477 & 0.6336 \\
+			marginality.06 & -2.08014 & 0.11734 & -17.728 & $<2 \times 10^{-16}$ *** \\
+			PAN.governor.061 & -0.31158 & 0.16673 & -1.869 & 0.0617 . \\
+			\midrule
+			\multicolumn{5}{l}{Signif. codes: *** $<0.001$, ** $<0.01$, * $<0.05$, . $<0.1$, ' ' $<1$} \\
+			\midrule
+			\multicolumn{5}{l}{Dispersion parameter for poisson family taken to be 1} \\
+			\midrule
+			Null deviance & \multicolumn{4}{c}{1473.87 on 2406 degrees of freedom} \\
+			Residual deviance & \multicolumn{4}{c}{991.25 on 2403 degrees of freedom} \\
+			AIC & \multicolumn{4}{c}{1299.2} \\
+			\bottomrule
+		\end{tabular}
+		\label{tab:poisson_regression_results}
+	\end{table}
+		\lstinputlisting[language=R, firstline=226,lastline=227]{PS3.R} 
+	\begin{table}[htbp]
+		\centering
+		\caption{Poisson Regression Results}
+		\begin{tabular}{lccc}
+			\toprule
+			& \textbf{Estimate} & \textbf{Std. Error} & \textbf{z value} \\
+			\midrule
+			(Intercept) & -3.81023 & 0.22209 & -17.156 \\
+			competitive.district1 & -0.08135 & 0.17069 & -0.477 \\
+			marginality.06 & -2.08014 & 0.11734 & -17.728 \\
+			PAN.governor.061 & -0.31158 & 0.16673 & -1.869 \\
+			\midrule
+			\multicolumn{4}{l}{\textbf{Signif. codes:} *** $<0.001$, ** $<0.01$, * $<0.05$, . $<0.1$, ' ' $<1$} \\
+			\midrule
+			\multicolumn{4}{l}{Dispersion parameter for poisson family taken to be 1} \\
+			\midrule
+			Null deviance & \multicolumn{3}{c}{1473.87 on 2406 degrees of freedom} \\
+			Residual deviance & \multicolumn{3}{c}{991.25 on 2403 degrees of freedom} \\
+			AIC & \multicolumn{3}{c}{1299.2} \\
+			\bottomrule
+		\end{tabular}
+		\label{tab:poisson_regression_results}
+	\end{table}
+A over-dispersion test (as below) was run. The p-value of the test is 0.143 which is bigger than 0.05. So we cannot reject the null hypothesis that true dispersion is smaller or equal to 1. Therefore, the zero-inflated model is not considered. According to the regression, the equation is as follows:
+\begin{align*}
+	\ln(\text{visit}) &= -3.81023 - 0.08135 \times \text{competitive} \\
+	&\quad - 2.08014 \times \text{marginality} - 0.31158 \times \text{governor}
+\end{align*}
+The equation suggests that holding other variables constant, PAN visited wing district about 8\% ($\exp(-0.08135)=0.92186932$) less than "saft seat" district.
+
+	\vspace{5 cm}
+	\item [(b)]
+	Interpret the \texttt{marginality.06} and \texttt{PAN.governor.06} coefficients.
+	
+	\begin{itemize}
+		\item \textbf{The marginality.06 coefficients:} Holding other variables constant, an unit increase in marginality is expected to decrease the number of PAN visits by a multiplicative factor of $e^{-2.08014} \approx 0.12491227$.
+		
+		\item \textbf{The PAN.governor.06 coefficients:} Holding other variables constant, PAN visits the states with a PAN-affiliated governor about 27\% ($\exp(-0.31158) \approx 0.73228985$) less than the states with a non-PAN-affiliated governor.
+	\end{itemize}
+	
+	
+	
+	\item [(c)]
+	Provide the estimated mean number of visits from the winning PAN presidential candidate for a hypothetical district that was competitive (\texttt{competitive.district}=1), had an average poverty level (\texttt{marginality.06} = 0), and a PAN governor (\texttt{PAN.governor.06}=1).
+	
+		\lstinputlisting[language=R, firstline=277,lastline=280]{PS3.R} 
+		Therefore, the estimated number is $0.01494818$.
+		
+	
+\end{enumerate}
+
+\end{document}
